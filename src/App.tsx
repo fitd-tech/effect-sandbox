@@ -113,6 +113,7 @@ function App() {
             height: '50px',
             backgroundColor: 'rgb(36, 39, 47)',
             borderRadius: '5px',
+            padding: '0 15px'
           }}
         >
           {success !== null && (
