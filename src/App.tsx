@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
-import { Effect } from 'effect'
+import { Cause, Data, Effect, Exit } from 'effect'
 
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -7,12 +7,18 @@ import effectLogo from './assets/effect.svg'
 
 import './App.css'
 
+class IntentionalFailure extends Data.Error<{ message: string }> {}
+
 function App() {
   const [count, setCount] = useState(0)
 
   const [success, setSuccess] = useState<boolean | null>(null)
   const [failError, setFailError] = useState<string | null>(null)
-  console.log('failError', failError)
+
+  function handleClickClearSuccessAndFailure() {
+    setSuccess(null)
+    setFailError(null)
+  }
 
   // GETTING STARTED
   // Installation
@@ -44,8 +50,33 @@ function App() {
     }
   }), [])
 
+  const failMatch = useMemo(() => Effect.sync(() => {
+    const failureExit = Effect.runSyncExit(Effect.fail(new Error('Failed!')))
+    setSuccess(null)
+    Exit.match(failureExit, {
+      onSuccess: value => console.log('unreachable value from failMatch', value),
+      onFailure: cause => setFailError(Cause.pretty(cause))
+    })
+  }), [])
+
+  const failCustomError = useMemo(() => Effect.sync(() => {
+    const failureEffect = Effect.fail(new IntentionalFailure({ message: 'Meant to do that!' }))
+    setSuccess(null)
+    const match = Effect.matchCause(failureEffect, {
+      onSuccess: value => console.log('unreachable value from failCustomError', value),
+      onFailure: cause => {
+        if (cause._tag === 'Fail') {
+          setFailError(cause.error.message)
+        }
+      }
+    })
+    Effect.runSync(match)
+  }), [])
+
   const handleClickSucceeed = useCallback(() => Effect.runSync(succeed), [succeed])
   const handleClickFailNaive = useCallback(() => Effect.runSync(failNaive), [failNaive])
+  const handleClickFailMatch = useCallback(() => Effect.runSync(failMatch), [failMatch])
+  const handleClickFailCustomError = useCallback(() => Effect.runSync(failCustomError), [failCustomError])
 
   return (
     <div style={{marginBottom: '300px'}}>
@@ -75,6 +106,14 @@ function App() {
       <h4>Running Effects [ <a href={runningEffectsChapterLink}>Link</a> ]</h4>
       <div className="card flex col">
         <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '50px',
+            backgroundColor: 'rgb(36, 39, 47)',
+            borderRadius: '5px',
+          }}
         >
           {success !== null && (
             <div>Succeeded!</div>
@@ -82,6 +121,11 @@ function App() {
           {failError !== null && (
             <div>{failError}</div>
           )}
+        </div>
+        <div
+          style={{ display: 'inline-block' }}
+        >
+          <button onClick={handleClickClearSuccessAndFailure}>Clear status</button>
         </div>
         <div
           style={{ display: 'inline-block' }}
@@ -94,6 +138,20 @@ function App() {
           }}
         >
           <button onClick={handleClickFailNaive}>Effect.fail (naive object access)</button>
+        </div>
+        <div
+          style={{
+            display: 'inline-block'
+          }}
+        >
+          <button onClick={handleClickFailMatch}>Effect.fail (Effect.match and Cause.pretty)</button>
+        </div>
+        <div
+          style={{
+            display: 'inline-block'
+          }}
+        >
+          <button onClick={handleClickFailCustomError}>Effect.fail (custom error and Effect.matchCause)</button>
         </div>
       </div>
     </div>
