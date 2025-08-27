@@ -24,7 +24,7 @@ function App() {
     setSuccess(success)
   }), [])
 
-  const fail = useMemo(() => Effect.sync(() => {
+  const failNaive = useMemo(() => Effect.sync(() => {
     const failureExit = Effect.runSyncExit(Effect.fail(new Error('Failed!')))
     console.log('failureExit', failureExit)
     setSuccess(null)
@@ -36,10 +36,10 @@ function App() {
   const handleClickIncrement = useCallback(() => Effect.runSync(task), [task])
 
   const handleClickSucceeed = useCallback(() => Effect.runSync(succeed), [succeed])
-  const handleClickFail = useCallback(() => Effect.runSync(fail), [fail])
+  const handleClickFailNaive = useCallback(() => Effect.runSync(failNaive), [failNaive])
 
   return (
-    <>
+    <div style={{marginBottom: '300px'}}>
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -83,10 +83,10 @@ function App() {
             display: 'inline-block'
           }}
         >
-          <button onClick={handleClickFail}>Effect.fail</button>
+          <button onClick={handleClickFailNaive}>Effect.fail (naive object access)</button>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
