@@ -9,14 +9,26 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+
   const [success, setSuccess] = useState<boolean | null>(null)
   const [failError, setFailError] = useState<string | null>(null)
   console.log('failError', failError)
+
+  // GETTING STARTED
+  // Installation
+  const installationChapterLink = 'https://effect.website/docs/getting-started/installation/'
 
   const task = useMemo(
     () => Effect.sync(() => setCount((current) => current + 1)),
     [setCount]
   )
+
+  const handleClickIncrement = useCallback(() => Effect.runSync(task), [task])
+
+  // Creating Effects
+  const creatingEffectsChapterLink = 'https://effect.website/docs/getting-started/creating-effects/'
+  // Running Effects
+  const runningEffectsChapterLink = 'https://effect.website/docs/getting-started/running-effects/'
 
   const succeed = useMemo(() => Effect.sync(() => {
     const success = Effect.runSync(Effect.succeed(true))
@@ -26,14 +38,11 @@ function App() {
 
   const failNaive = useMemo(() => Effect.sync(() => {
     const failureExit = Effect.runSyncExit(Effect.fail(new Error('Failed!')))
-    console.log('failureExit', failureExit)
     setSuccess(null)
     if ('cause' in failureExit && 'error' in failureExit.cause && 'message' in failureExit.cause.error) {
       setFailError(failureExit.cause.error.message as string)
     }
   }), [])
-
-  const handleClickIncrement = useCallback(() => Effect.runSync(task), [task])
 
   const handleClickSucceeed = useCallback(() => Effect.runSync(succeed), [succeed])
   const handleClickFailNaive = useCallback(() => Effect.runSync(failNaive), [failNaive])
@@ -58,11 +67,12 @@ function App() {
       <div className="top-spacing">
         <h3>Getting Started</h3>
       </div>
-      <h4>Installation</h4>
+      <h4>Installation [ <a href={installationChapterLink}>Link</a> ]</h4>
       <div className="card">
         <button onClick={handleClickIncrement}>count is {count}</button>
       </div>
-      <h4>Creating Effects</h4>
+      <h4>Creating Effects [ <a href={creatingEffectsChapterLink}>Link</a> ]</h4>
+      <h4>Running Effects [ <a href={runningEffectsChapterLink}>Link</a> ]</h4>
       <div className="card flex col">
         <div
         >
