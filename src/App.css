@@ -44,6 +44,19 @@
   padding: 2em;
 }
 
+.card.flex {
+  display: flex;
+  gap: 10px;
+}
+
+.card.flex.col {
+  flex-direction: column;
+}
+
 .read-the-docs {
   color: #888;
+}
+
+.top-spacing {
+  margin-top: 50px;
 }

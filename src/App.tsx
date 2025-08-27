@@ -9,13 +9,34 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [success, setSuccess] = useState<boolean | null>(null)
+  const [failError, setFailError] = useState<string | null>(null)
+  console.log('failError', failError)
 
   const task = useMemo(
     () => Effect.sync(() => setCount((current) => current + 1)),
     [setCount]
   )
 
-  const increment = useCallback(() => Effect.runSync(task), [task])
+  const succeed = useMemo(() => Effect.sync(() => {
+    const success = Effect.runSync(Effect.succeed(true))
+    setFailError(null)
+    setSuccess(success)
+  }), [])
+
+  const fail = useMemo(() => Effect.sync(() => {
+    const failureExit = Effect.runSyncExit(Effect.fail(new Error('Failed!')))
+    console.log('failureExit', failureExit)
+    setSuccess(null)
+    if ('cause' in failureExit && 'error' in failureExit.cause && 'message' in failureExit.cause.error) {
+      setFailError(failureExit.cause.error.message as string)
+    }
+  }), [])
+
+  const handleClickIncrement = useCallback(() => Effect.runSync(task), [task])
+
+  const handleClickSucceeed = useCallback(() => Effect.runSync(succeed), [succeed])
+  const handleClickFail = useCallback(() => Effect.runSync(fail), [fail])
 
   return (
     <>
@@ -34,8 +55,26 @@ function App() {
       </a>
       </div>
       <h2>with Effect!</h2>
+      <div className="top-spacing">
+        <h3>Getting Started</h3>
+      </div>
+      <h4>Installation</h4>
       <div className="card">
-        <button onClick={increment}>count is {count}</button>
+        <button onClick={handleClickIncrement}>count is {count}</button>
+      </div>
+      <h4>Creating Effects</h4>
+      <div className="card flex col">
+        <div
+        >
+          {success !== null && (
+            <div>Succeeded!</div>
+          )}
+          {failError !== null && (
+            <div>{failError}</div>
+          )}
+        </div>
+        <button onClick={handleClickSucceeed}>Effect.succeed</button>
+        <button onClick={handleClickFail}>Effect.fail</button>
       </div>
     </>
   )
