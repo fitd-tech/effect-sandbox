@@ -73,8 +73,18 @@ function App() {
             <div>{failError}</div>
           )}
         </div>
-        <button onClick={handleClickSucceeed}>Effect.succeed</button>
-        <button onClick={handleClickFail}>Effect.fail</button>
+        <div
+          style={{ display: 'inline-block' }}
+        >
+          <button onClick={handleClickSucceeed}>Effect.succeed</button>
+        </div>
+        <div
+          style={{
+            display: 'inline-block'
+          }}
+        >
+          <button onClick={handleClickFail}>Effect.fail</button>
+        </div>
       </div>
     </>
   )
